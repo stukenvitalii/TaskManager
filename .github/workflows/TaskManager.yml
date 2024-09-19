@@ -33,7 +33,6 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      # Step 1: Log in to GitHub Container Registry
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -41,23 +40,19 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.CR_PAT }}  # Personal Access Token for GitHub
 
-      # Step 2: Log in to Docker Hub
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
           username: ${{ secrets.DOCKER_USERNAME }}  # Docker Hub Username
           password: ${{ secrets.DOCKER_TOKEN }}     # Docker Hub Access Token
 
-      # Step 3: Build Docker image for both registries (GitHub Container Registry and Docker Hub)
       - name: Build Docker image
         run: |
           docker build -t ghcr.io/stukenvitalii/taskmanager:latest .  # Tag for GitHub Container Registry
           docker tag ghcr.io/stukenvitalii/taskmanager:latest ${{ secrets.DOCKER_USERNAME }}/taskmanager:latest  # Tag for Docker Hub
 
-      # Step 4: Push Docker image to GitHub Container Registry
       - name: Push Docker image to GitHub Container Registry
         run: docker push ghcr.io/stukenvitalii/taskmanager:latest
 
-      # Step 5: Push Docker image to Docker Hub
       - name: Push Docker image to Docker Hub
         run: docker push ${{ secrets.DOCKER_USERNAME }}/taskmanager:latest
