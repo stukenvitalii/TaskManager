@@ -11,8 +11,7 @@ public class TaskManagerApplication implements CommandLineRunner {
 		SpringApplication.run(TaskManagerApplication.class, args);
 	}
 
-
 	@Override
-	public void run(String... args) throws Exception {
+	public void run(String... args) {
 	}
 }
