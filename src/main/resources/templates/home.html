@@ -11,10 +11,14 @@
 <div class="container">
     <div class="row justify-content-center">
         <div class="col-md-6 text-center">
-            <h1>Welcome to Task Manager</h1>
-            <p>Manage your tasks with ease.</p>
-            <a href="/login" class="btn btn-primary btn-lg">Login</a>
-            <a href="/register" class="btn btn-secondary btn-lg">Register</a>
+            <h1 th:text="#{welcome.message}">Welcome to Task Manager</h1>
+            <p th:text="#{manage.tasks}">Manage your tasks with ease.</p>
+            <a href="/login" class="btn btn-primary btn-lg" th:text="#{login.button}">Login</a>
+            <a href="/register" class="btn btn-secondary btn-lg" th:text="#{register.button}">Register</a>
+            <p class="text-center mt-3">
+                <a th:href="@{/home(lang='en')}" th:text="#{lang.english}">English</a> |
+                <a th:href="@{/home(lang='ru')}" th:text="#{lang.russian}">Русский</a>
+            </p>
         </div>
     </div>
 </div>

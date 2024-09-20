@@ -5,8 +5,12 @@
     <title>Error</title>
 </head>
 <body>
-    <div>
-        <p>Some error occurred. Try to refresh the page</p>
-    </div>
+<div>
+    <p th:text="#{error.message}">Some error occurred. Try to refresh the page</p>
+    <p class="text-center">
+        <a th:href="@{/error(lang='en')}" th:text="#{lang.english}">English</a> |
+        <a th:href="@{/error(lang='ru')}" th:text="#{lang.russian}">Русский</a>
+    </p>
+</div>
 </body>
 </html>

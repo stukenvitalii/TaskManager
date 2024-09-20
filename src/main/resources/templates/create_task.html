@@ -1,84 +1,32 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <title>Add task</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <title th:text="#{create.task.title}">Create Task</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
-<nav class="navbar navbar-expand-md bg-dark navbar-dark">
-    <!-- Brand -->
-    <a class="navbar-brand" href="#">Task Manager</a>
-
-    <!-- Toggler/collapsibe Button -->
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
-        <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <!-- Navbar links -->
-    <div class="collapse navbar-collapse" id="collapsibleNavbar">
-        <ul class="navbar-nav">
-            <li class="nav-item">
-                <a class="nav-link" th:href="@{/tasks}">Main page</a>
-            </li>
-        </ul>
-    </div>
-</nav>
 <div class="container">
-    <div class="row">
-        <div class="col-lg-6 col-md-6 col-sm-6 container justify-content-center card">
-            <h1 class="text-center">Add new task</h1>
-            <div class="card-body">
-                <form th:action="@{/tasks}" th:object="${task}" method="POST">
-                    <div class="form-group">
-                        <label> Task name
-                            <input type="text"
-                                   name="name"
-                                   th:field="*{name}"
-                                   class="form-control"
-                                   placeholder="Enter task name"
-                            />
-                        </label>
-                    </div>
-
-                    <div class="form-group">
-                        <label>
-                            Task description
-                            <input type="text"
-                                   name="description"
-                                   th:field="*{description}"
-                                   class="form-control"
-                                   placeholder="Enter task description"
-                            />
-                        </label>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Select status</label>
-                        <select class="form-control selectpicker" th:field="*{status}">
-                            <option
-                                    value="New">New
-                            </option>
-                            <option
-                                    value="In process">In process
-                            </option>
-                            <option
-                                    value="Done">Done
-                            </option>
-
-                        </select>
-                    </div>
-
-                    <div class="box-footer">
-                        <button type="submit" class="btn btn-primary">
-                            Submit
-                        </button>
-                    </div>
-                </form>
-            </div>
+    <h1 class="text-center" th:text="#{create.task.title}">Create Task</h1>
+    <form th:action="@{/tasks/new}" method="post">
+        <div class="form-group">
+            <label for="taskNameInput" th:text="#{task.name}">Task Name:</label>
+            <input type="text" class="form-control" id="taskNameInput" name="name" required>
         </div>
-    </div>
+        <div class="form-group">
+            <label for="taskDescriptionInput" th:text="#{task.description}">Task Description:</label>
+            <textarea class="form-control" id="taskDescriptionInput" name="description" required></textarea>
+        </div>
+        <div class="form-group">
+            <label for="taskStatusInput" th:text="#{task.status}">Task Status:</label>
+            <input type="text" class="form-control" id="taskStatusInput" name="status" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" th:text="#{create.button}">Create</button>
+    </form>
+    <p class="text-center">
+        <a th:href="@{/tasks/new(lang='en')}" th:text="#{lang.english}">English</a> |
+        <a th:href="@{/tasks/new(lang='ru')}" th:text="#{lang.russian}">Русский</a>
+    </p>
 </div>
 </body>
 </html>

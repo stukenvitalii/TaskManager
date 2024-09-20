@@ -1,26 +1,32 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Login</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <meta charset="UTF-8">
+    <title th:text="#{login.title}">Login</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 <body>
 <div class="container">
-    <h1 class="text-center">Login</h1>
+    <h1 class="text-center" th:text="#{login.title}">Login</h1>
     <form th:action="@{/login}" method="post">
         <div class="form-group">
-            <label for="usernameInput">Username:</label>
+            <label for="usernameInput" th:text="#{username.label}">Username:</label>
             <input type="text" class="form-control" id="usernameInput" name="username" required>
         </div>
         <div class="form-group">
-            <label for="passwordInput">Password:</label>
+            <label for="passwordInput" th:text="#{password.label}">Password:</label>
             <input type="password" class="form-control" id="passwordInput" name="password" required>
         </div>
-        <button type="submit" class="btn btn-primary btn-block">Login</button>
+        <button type="submit" class="btn btn-primary btn-block" th:text="#{login.button}">Login</button>
     </form>
-    <p th:if="${param.error}" th:text="'Invalid username or password!'" style="color: red;"></p>
+    <p th:if="${param.error}" th:text="#{login.error}" style="color: red;">Invalid username or password!</p>
     <p class="text-center">
-        Don't have an account? <a th:href="@{/register}">Register here</a>
+        <span th:text="#{no.account}">Don't have an account?</span> <a th:href="@{/register}" th:text="#{register.here}">Register here</a>
+    </p>
+    <p class="text-center">
+        <a th:href="@{/login(lang='en')}" th:text="#{lang.english}">English</a> |
+        <a th:href="@{/login(lang='ru')}" th:text="#{lang.russian}">Русский</a>
     </p>
 </div>
 </body>
