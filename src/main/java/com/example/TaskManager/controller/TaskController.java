@@ -2,8 +2,10 @@ package com.example.TaskManager.controller;
 
 import com.example.TaskManager.entity.Task;
 import com.example.TaskManager.entity.User;
+import com.example.TaskManager.exception.UnauthorizedException;
 import com.example.TaskManager.service.TaskService;
 import com.example.TaskManager.service.UserService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
@@ -15,23 +17,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import java.util.List;
 
+@RequiredArgsConstructor
 @Controller
 public class TaskController {
-
     private final TaskService taskService;
     private final UserService userService;
-
-    public TaskController(TaskService taskService, UserService userService) {
-        super();
-        this.taskService = taskService;
-        this.userService = userService;
-    }
 
     @GetMapping("/tasks")
     public String showTasks(Model model) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
-            return "redirect:/home";
+            throw new UnauthorizedException("User is not authenticated");
         }
         String username = authentication.getName();
         User user = userService.findByUsername(username).orElseThrow(() -> new RuntimeException("User not found"));
