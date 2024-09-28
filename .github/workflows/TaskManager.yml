@@ -33,6 +33,15 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
+      # Docker layer caching to speed up builds
+      - name: Set up Docker layer cache
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-docker-${{ hashFiles('Dockerfile') }}
+          restore-keys: |
+            ${{ runner.os }}-docker
+
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -48,11 +57,22 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/stukenvitalii/taskmanager:latest .  # Tag for GitHub Container Registry
-          docker tag ghcr.io/stukenvitalii/taskmanager:latest ${{ secrets.DOCKER_USERNAME }}/taskmanager:latest  # Tag for Docker Hub
+          # Generate tag with short commit hash
+          COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
+          docker build --cache-from=type=local,src=/tmp/.buildx-cache \
+                       --cache-to=type=local,dest=/tmp/.buildx-cache \
+                       -t ghcr.io/stukenvitalii/taskmanager:latest \
+                       -t ghcr.io/stukenvitalii/taskmanager:$COMMIT_HASH .  # Use commit hash for additional tagging
+
+          docker tag ghcr.io/stukenvitalii/taskmanager:$COMMIT_HASH ${{ secrets.DOCKER_USERNAME }}/taskmanager:$COMMIT_HASH
+          docker tag ghcr.io/stukenvitalii/taskmanager:latest ${{ secrets.DOCKER_USERNAME }}/taskmanager:latest
 
       - name: Push Docker image to GitHub Container Registry
-        run: docker push ghcr.io/stukenvitalii/taskmanager:latest
+        run: |
+          docker push ghcr.io/stukenvitalii/taskmanager:latest
+          docker push ghcr.io/stukenvitalii/taskmanager:$COMMIT_HASH  # Push tagged version
 
       - name: Push Docker image to Docker Hub
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/taskmanager:latest
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/taskmanager:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/taskmanager:$COMMIT_HASH  # Push tagged version
