@@ -33,15 +33,6 @@ jobs:
       - name: Build with Maven
         run: mvn clean install
 
-      # Docker layer caching to speed up builds
-      - name: Set up Docker layer cache
-        uses: actions/cache@v3
-        with:
-          path: /tmp/.buildx-cache
-          key: ${{ runner.os }}-docker-${{ hashFiles('Dockerfile') }}
-          restore-keys: |
-            ${{ runner.os }}-docker
-
       - name: Log in to GitHub Container Registry
         uses: docker/login-action@v2
         with:
@@ -55,24 +46,19 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}  # Docker Hub Username
           password: ${{ secrets.DOCKER_TOKEN }}     # Docker Hub Access Token
 
-      - name: Build Docker image
+      - name: Build Docker image with BuildKit caching
         run: |
-          # Generate tag with short commit hash
-          COMMIT_HASH=$(echo $GITHUB_SHA | cut -c1-7)
-          docker build --cache-from=type=local,src=/tmp/.buildx-cache \
-                       --cache-to=type=local,dest=/tmp/.buildx-cache \
+          export DOCKER_BUILDKIT=1
+          docker build --cache-from=type=gha --cache-to=type=gha,mode=max \
                        -t ghcr.io/stukenvitalii/taskmanager:latest \
-                       -t ghcr.io/stukenvitalii/taskmanager:$COMMIT_HASH .  # Use commit hash for additional tagging
-
-          docker tag ghcr.io/stukenvitalii/taskmanager:$COMMIT_HASH ${{ secrets.DOCKER_USERNAME }}/taskmanager:$COMMIT_HASH
-          docker tag ghcr.io/stukenvitalii/taskmanager:latest ${{ secrets.DOCKER_USERNAME }}/taskmanager:latest
+                       -t ghcr.io/stukenvitalii/taskmanager:${{ github.sha }} .
 
       - name: Push Docker image to GitHub Container Registry
         run: |
           docker push ghcr.io/stukenvitalii/taskmanager:latest
-          docker push ghcr.io/stukenvitalii/taskmanager:$COMMIT_HASH  # Push tagged version
+          docker push ghcr.io/stukenvitalii/taskmanager:${{ github.sha }}
 
       - name: Push Docker image to Docker Hub
         run: |
+          docker tag ghcr.io/stukenvitalii/taskmanager:${{ github.sha }} ${{ secrets.DOCKER_USERNAME }}/taskmanager:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/taskmanager:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/taskmanager:$COMMIT_HASH  # Push tagged version
