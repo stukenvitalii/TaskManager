@@ -1,35 +1,26 @@
-# Stage 1: Base image with PostgreSQL and Liquibase
-FROM postgres:16 as base
-ENV POSTGRES_DB=task_manager
-ENV POSTGRES_USER=postgres
-ENV POSTGRES_PASSWORD=postgres
+# Stage 1: Base image with PostgreSQL and JDK installation
+FROM postgres:16 AS base
 
-# Copy your Liquibase migration files
-COPY ./migrations /liquibase/changelog
+# Update repositories and install OpenJDK 21
+RUN apt-get update && \
+    apt-get install -y openjdk-21-jdk --no-install-recommends && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
-# Run PostgreSQL service in the background
-RUN apt-get update && apt-get install -y openjdk-21-jdk
+# Set JAVA_HOME environment variable
+ENV JAVA_HOME /usr/lib/jvm/java-21-openjdk-amd64
+ENV PATH $JAVA_HOME/bin:$PATH
 
-# Stage 2: Build and run Spring Boot app with Liquibase and PostgreSQL
-FROM openjdk:21-jdk-slim as builder
+# Stage 2: Build and run Spring Boot app
+FROM openjdk:21 AS builder
+
 LABEL authors="stukenvitalii"
 
-# Copy the JAR file
-COPY ./target/TaskManager-0.0.1-SNAPSHOT.jar /TaskManager.jar
+# Copy the application JAR file
+COPY ./target/TaskManager-0.0.1-SNAPSHOT.jar TaskManager.jar
 
-# Copy the PostgreSQL data and migrations from the previous stage
-COPY --from=base /var/lib/postgresql/data /var/lib/postgresql/data
-COPY --from=base /liquibase/changelog /liquibase/changelog
-
-# Liquibase execution before running the app
-RUN java -jar /TaskManager.jar && \
-    liquibase --changelog-file=/liquibase/changelog/master.xml \
-    --driver=org.postgresql.Driver \
-    --url=jdbc:postgresql://localhost:5432/task_manager \
-    --username=postgres \
-    --password=postgres update
-
+# Expose the application port
 EXPOSE 8080
 
-# Entry point to run your Spring Boot app
+# Run the application
 ENTRYPOINT ["java", "-jar", "/TaskManager.jar"]
